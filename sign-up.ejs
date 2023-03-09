@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+  </head>
+  <body>
+    <h1>Sign up</h1>
+    <% if (typeof errors !== 'undefined') { %>
+    <form action="" method="POST">
+      <label for="firstname">First Name</label>
+      <input
+        name="firstname"
+        placeholder="John"
+        type="text"
+        value="<%= user.firstname%>"
+      />
+      <label for="lastname">Last Name</label>
+      <input
+        name="lastname"
+        placeholder="Smith"
+        type="text"
+        value="<%= user.lastname%>"
+      />
+      <label for="username">Username</label>
+      <input
+        name="username"
+        placeholder="jsmith1"
+        type="text"
+        value="<%= user.username%>"
+      />
+      <label for="password">Password</label>
+      <input type="password" name="password" />
+      <label for="confirmpassword">Confirm Password</label>
+      <input type="password" name="confirmpassword" />
+      <button>Sign up</button>
+    </form>
+    <% } else { %>
+    <form action="" method="POST">
+      <label for="firstname">First Name</label>
+      <input name="firstname" placeholder="John" type="text" />
+      <label for="lastname">Last Name</label>
+      <input name="lastname" placeholder="Smith" type="text" />
+      <label for="username">Username</label>
+      <input name="username" placeholder="jsmith1" type="text" />
+      <label for="password">Password</label>
+      <input type="password" name="password" />
+      <label for="confirmpassword">Confirm Password</label>
+      <input type="password" name="confirmpassword" />
+      <button>Sign up</button>
+    </form>
+    <% } %> <% if (typeof errors !== 'undefined') { %>
+    <ul>
+      <% errors.forEach(function(error) { %>
+      <li><%= error.msg %></li>
+      <% }); %>
+    </ul>
+    <% } %>
+  </body>
+</html>
