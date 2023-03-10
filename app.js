@@ -30,8 +30,8 @@ const User = mongoose.model(
 const Message = mongoose.model(
   "Message",
   new Schema({
-    title: { type: String, required: true },
-    timestamp: { type: Date, required: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    date: { type: String, required: true },
     text: { type: String, required: true },
   })
 );
@@ -132,7 +132,6 @@ app.post(
 
 app.get("/member-sign-up", (req, res) => res.render("member-sign-up"));
 app.post("/member-sign-up", (req, res, next) => {
-  console.log(req.user.username);
   if (req.body.code === process.env.secret_code) {
     /*
     const tempuser = new User({
@@ -145,20 +144,35 @@ app.post("/member-sign-up", (req, res, next) => {
     */
     const tempuser = req.user;
     tempuser.isMember = true;
-    console.log("bruh");
     User.findByIdAndUpdate(req.user.id, tempuser, {}, (err, theuser) => {
-      console.log("bruh");
       if (err) {
         return next(err);
       }
       res.redirect("/");
     });
   } else {
-    console.log(req.body.code);
-    console.log(process.env.secret_code);
     res.render("member-sign-up", { failure: true });
-    console.log("not bruh");
   }
+});
+
+app.get("/create-message", (req, res) => {
+  res.render("create-message");
+});
+app.post("/create-message", (req, res, next) => {
+  let curDate = new Date();
+  curDate =
+    curDate.getMonth() + "/" + curDate.getDate() + "/" + curDate.getFullYear();
+  const message = new Message({
+    text: req.body.text,
+    date: curDate,
+    user: req.user,
+  });
+  message.save((err) => {
+    if (err) {
+      next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
