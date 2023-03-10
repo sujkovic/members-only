@@ -8,8 +8,11 @@
     <h1>Enter da code</h1>
     <form action="" method="POST">
       <label for="code">Secret code</label>
-      <input type="code" type="text" />
+      <input name="code" type="password" />
       <button>Enter</button>
     </form>
+    <% if (typeof failure !== 'undefined') { %>
+    <h1>Wrong code</h1>
+    <% } %>
   </body>
 </html>

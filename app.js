@@ -74,12 +74,18 @@ passport.deserializeUser(function (id, done) {
   });
 });
 
+//  keep global var of user
+app.use(function (req, res, next) {
+  res.locals.currentUser = req.user;
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => res.render("index"));
-app.get("/sign-up", (req, res) => res.render("sign-up", { user: req.user }));
+app.get("/", (req, res) => res.render("index", { user: req.user }));
+app.get("/sign-up", (req, res) => res.render("sign-up"));
 app.post("/sign-up", [
   body("firstname", "First name required").trim().isLength({ min: 1 }),
   body("lastname", "Last name required").trim().isLength({ min: 1 }),
@@ -115,5 +121,44 @@ app.post("/sign-up", [
     });
   },
 ]);
+
+app.post(
+  "/log-in",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/",
+  })
+);
+
+app.get("/member-sign-up", (req, res) => res.render("member-sign-up"));
+app.post("/member-sign-up", (req, res, next) => {
+  console.log(req.user.username);
+  if (req.body.code === process.env.secret_code) {
+    /*
+    const tempuser = new User({
+      firstname: req.user.firstname,
+      lastname: req.user.lastname,
+      username: req.user.username,
+      password: req.user.password,
+      isMember: true,
+    });
+    */
+    const tempuser = req.user;
+    tempuser.isMember = true;
+    console.log("bruh");
+    User.findByIdAndUpdate(req.user.id, tempuser, {}, (err, theuser) => {
+      console.log("bruh");
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+  } else {
+    console.log(req.body.code);
+    console.log(process.env.secret_code);
+    res.render("member-sign-up", { failure: true });
+    console.log("not bruh");
+  }
+});
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
