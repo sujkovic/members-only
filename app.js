@@ -22,6 +22,7 @@ const User = mongoose.model(
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
     isMember: { type: Boolean },
+    isAdmin: { type: Boolean },
     username: { type: String, required: true },
     password: { type: String, required: true },
   })
@@ -142,18 +143,11 @@ app.post(
   })
 );
 
-app.get("/member-sign-up", (req, res) => res.render("member-sign-up"));
+app.get("/member-sign-up", (req, res) =>
+  res.render("member-sign-up", { user: req.user })
+);
 app.post("/member-sign-up", (req, res, next) => {
   if (req.body.code === process.env.secret_code) {
-    /*
-    const tempuser = new User({
-      firstname: req.user.firstname,
-      lastname: req.user.lastname,
-      username: req.user.username,
-      password: req.user.password,
-      isMember: true,
-    });
-    */
     const tempuser = req.user;
     tempuser.isMember = true;
     User.findByIdAndUpdate(req.user.id, tempuser, {}, (err, theuser) => {
@@ -163,7 +157,25 @@ app.post("/member-sign-up", (req, res, next) => {
       res.redirect("/");
     });
   } else {
-    res.render("member-sign-up", { failure: true });
+    res.render("member-sign-up", { failure: true, user: req.user });
+  }
+});
+
+app.get("/admin-sign-up", (req, res) =>
+  res.render("admin-sign-up", { user: req.user })
+);
+app.post("/admin-sign-up", (req, res, next) => {
+  if (req.body.code === process.env.admin_code) {
+    const tempuser = req.user;
+    tempuser.isAdmin = true;
+    User.findByIdAndUpdate(req.user.id, tempuser, {}, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+  } else {
+    res.render("admin-sign-up", { failure: true, user: req.user });
   }
 });
 
@@ -192,6 +204,16 @@ app.get("/log-out", (req, res, next) => {
     if (err) {
       return next(err);
     }
+    res.redirect("/");
+  });
+});
+
+app.post("/delete-message", (req, res, next) => {
+  Message.findByIdAndRemove(req.body.msgid, (err) => {
+    if (err) {
+      return next(err);
+    }
+    //  W
     res.redirect("/");
   });
 });

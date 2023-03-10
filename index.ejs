@@ -9,19 +9,38 @@
     <h1>Welcome back <%= user.username %></h1>
     <div><a href="/create-message">Create a new message</a></div>
     <div><a href="/log-out">Log out</a></div>
-    <% if (user.isMember) { %>
+    <h2>Messages</h2>
+    <% if (user.isAdmin) { %>
+    <ul>
+      <% messages.forEach(function(message) { %>
+      <li>
+        <%= message.user + " " + message.date + " - " + message.text%>
+        <form action="/delete-message" method="POST">
+          <input type="hidden" name="msgid" value="<%= message._id %>" />
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+      <% }); %>
+    </ul>
+    <% } %> <% if (!user.isAdmin && user.isMember) { %>
     <ul>
       <% messages.forEach(function(message) { %>
       <li><%= message.user + " " + message.date + " - " + message.text%></li>
       <% }); %>
     </ul>
-    <% } else { %>
+    <% } else { %> <% } %> <% if (!user.isAdmin && !user.isMember) { %>
     <ul>
       <% messages.forEach(function(message) { %>
-      <li><%=message.text%></li>
-      <% }); %>
+      <li><%=message.user + " " + message.date%></li>
+      <% }); %> <% } %>
     </ul>
-    <% } %> <% } else {%>
+    <div>
+      <a href="member-sign-up">Member sign up (must be signed in already)</a>
+    </div>
+    <div>
+      <a href="admin-sign-up">Admin sign up (must be signed in already)</a>
+    </div>
+    <% } else {%>
     <h1>Log in</h1>
     <form action="/log-in" method="POST">
       <label for="username">Username</label>
@@ -30,7 +49,12 @@
       <input type="password" name="password" placeholder="password" />
       <button>Log in</button>
     </form>
+    <br />
     <div><a href="/sign-up">Create an account</a></div>
+    <br />
+    <div>
+      Note - Only members can see messages, and only admins can delete them!
+    </div>
     <%}%>
   </body>
 </html>
