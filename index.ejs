@@ -7,9 +7,21 @@
   <body>
     <% if (user) {%>
     <h1>Welcome back <%= user.username %></h1>
-    <a href="/create-message">Create a new message</a>
-    <a href="/log-out">Log out</a>
-    <% } else {%>
+    <div><a href="/create-message">Create a new message</a></div>
+    <div><a href="/log-out">Log out</a></div>
+    <% if (user.isMember) { %>
+    <ul>
+      <% messages.forEach(function(message) { %>
+      <li><%= message.user + " " + message.date + " - " + message.text%></li>
+      <% }); %>
+    </ul>
+    <% } else { %>
+    <ul>
+      <% messages.forEach(function(message) { %>
+      <li><%=message.text%></li>
+      <% }); %>
+    </ul>
+    <% } %> <% } else {%>
     <h1>Log in</h1>
     <form action="/log-in" method="POST">
       <label for="username">Username</label>
@@ -18,6 +30,7 @@
       <input type="password" name="password" placeholder="password" />
       <button>Log in</button>
     </form>
+    <div><a href="/sign-up">Create an account</a></div>
     <%}%>
   </body>
 </html>

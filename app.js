@@ -30,7 +30,7 @@ const User = mongoose.model(
 const Message = mongoose.model(
   "Message",
   new Schema({
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: String, required: true },
     date: { type: String, required: true },
     text: { type: String, required: true },
   })
@@ -84,7 +84,19 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => res.render("index", { user: req.user }));
+app.get("/", (req, res, next) => {
+  Message.find()
+    .sort([["date", "descending"]])
+    .exec(function (err, msgs) {
+      if (err) {
+        return next(err);
+      }
+      res.render("index", {
+        user: req.user,
+        messages: msgs,
+      });
+    });
+});
 app.get("/sign-up", (req, res) => res.render("sign-up"));
 app.post("/sign-up", [
   body("firstname", "First name required").trim().isLength({ min: 1 }),
@@ -165,11 +177,20 @@ app.post("/create-message", (req, res, next) => {
   const message = new Message({
     text: req.body.text,
     date: curDate,
-    user: req.user,
+    user: req.user.username,
   });
   message.save((err) => {
     if (err) {
       next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+app.get("/log-out", (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
     }
     res.redirect("/");
   });
